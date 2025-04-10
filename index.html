@@ -1234,73 +1234,158 @@
           "progress-percentage"
         ).textContent = `${percentage}%`;
         document.getElementById("progress-fill").style.width = `${percentage}%`;
+
+        // Change progress bar color based on percentage
+        const progressFill = document.getElementById("progress-fill");
+        if (percentage < 30) {
+          progressFill.style.background =
+            "linear-gradient(90deg, #f44336, #d32f2f)";
+        } else if (percentage < 70) {
+          progressFill.style.background =
+            "linear-gradient(90deg, #ff9800, #ff5722)";
+        } else {
+          progressFill.style.background =
+            "linear-gradient(90deg, var(--accent), var(--accent-dark))";
+        }
       }
 
-      function updateStreak() {
-        const completedTasks = tasks.filter((t) => t.completed);
-        const streak = completedTasks.reduce((acc, task, index) => {
-          if (index === 0) return 1;
-          const prevTaskDate = new Date(completedTasks[index - 1].completedAt);
-          const currentTaskDate = new Date(task.completedAt);
-          const diffDays = Math.ceil(
-            (currentTaskDate - prevTaskDate) / (1000 * 60 * 60 * 24)
+      function saveTasks() {
+        localStorage.setItem("studyTasks", JSON.stringify(tasks));
+      }
+
+      function clearProgress() {
+        if (
+          confirm(
+            "Are you sure you want to reset all progress? This cannot be undone."
+          )
+        ) {
+          tasks.forEach((task) => {
+            task.completed = false;
+            delete task.completedAt;
+          });
+          saveTasks();
+          loadTasks();
+        }
+      }
+
+      function toggleMode() {
+        document.body.classList.toggle("light-mode");
+        localStorage.setItem(
+          "themeMode",
+          document.body.classList.contains("light-mode") ? "light" : "dark"
+        );
+      }
+
+      // Check for saved theme preference
+      const savedTheme = localStorage.getItem("themeMode");
+      if (savedTheme === "light") {
+        document.body.classList.add("light-mode");
+      }
+
+      function celebrate() {
+        // Create confetti elements
+        for (let i = 0; i < 100; i++) {
+          const confetti = document.createElement("div");
+          confetti.className = "confetti";
+          confetti.style.left = `${Math.random() * 100}vw`;
+          confetti.style.backgroundColor = getRandomColor();
+          confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+          document.body.appendChild(confetti);
+
+          // Remove confetti after animation
+          setTimeout(() => {
+            confetti.remove();
+          }, 5000);
+        }
+
+        // Play celebration sound if available
+        if (typeof Audio !== "undefined") {
+          const audio = new Audio(
+            "https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"
           );
-          return diffDays === 1 ? acc + 1 : acc;
-        }, 0);
-        document.getElementById("current-streak").textContent = streak;
+          audio.volume = 0.2;
+          audio.play().catch((e) => console.log("Audio play failed:", e));
+        }
+      }
+
+      function getRandomColor() {
+        const colors = [
+          "#4cc9f0",
+          "#4361ee",
+          "#3a0ca3",
+          "#f72585",
+          "#7209b7",
+          "#3a86ff",
+          "#4caf50",
+          "#ff9800",
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
       }
 
       function showAddTaskModal() {
         document.getElementById("addTaskModal").classList.add("show");
+        document.getElementById("taskDate").focus();
       }
+
       function hideAddTaskModal() {
         document.getElementById("addTaskModal").classList.remove("show");
+        document.getElementById("taskForm").reset();
       }
+
       function addNewTask() {
-        const taskDate = document.getElementById("taskDate").value;
-        const taskDescription =
-          document.getElementById("taskDescription").value;
-        if (!taskDate || !taskDescription) {
-          alert("Please fill in all fields.");
+        const dateInput = document.getElementById("taskDate");
+        const taskInput = document.getElementById("taskDescription");
+
+        if (!dateInput.value.trim() || !taskInput.value.trim()) {
+          alert("Please fill in both date and task fields");
           return;
         }
 
         const newTask = {
-          date: taskDate,
-          task: taskDescription,
+          date: dateInput.value.trim(),
+          task: taskInput.value.trim(),
           completed: false,
           createdAt: new Date(),
         };
+
         tasks.push(newTask);
         saveTasks();
         loadTasks();
         hideAddTaskModal();
+
+        // Scroll to the new task
+        setTimeout(() => {
+          const rows = document.querySelectorAll("#studyTable tbody tr");
+          if (rows.length > 0) {
+            rows[rows.length - 1].scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }
+        }, 100);
       }
+
       function editTask(index) {
         const task = tasks[index];
-        document.getElementById("taskDate").value = task.date;
-        document.getElementById("taskDescription").value = task.task;
-        showAddTaskModal();
-        document.getElementById("taskForm").onsubmit = function () {
-          updateTask(index);
-          return false; // Prevent form submission
-        };
-      }
-      function updateTask(index) {
-        const taskDate = document.getElementById("taskDate").value;
-        const taskDescription =
-          document.getElementById("taskDescription").value;
-        if (!taskDate || !taskDescription) {
-          alert("Please fill in all fields.");
-          return;
-        }
+        const newDate = prompt("Edit date:", task.date);
+        if (newDate === null) return;
 
-        tasks[index].date = taskDate;
-        tasks[index].task = taskDescription;
+        const newTask = prompt("Edit task:", task.task);
+        if (newTask === null) return;
+
+        tasks[index].date = newDate;
+        tasks[index].task = newTask;
         saveTasks();
         loadTasks();
-        hideAddTaskModal();
       }
+
       function deleteTask(index) {
         if (confirm("Are you sure you want to delete this task?")) {
           tasks.splice(index, 1);
@@ -1308,70 +1393,105 @@
           loadTasks();
         }
       }
-      function clearProgress() {
-        if (confirm("Are you sure you want to reset all progress?")) {
-          tasks = tasks.map((task) => ({ ...task, completed: false }));
-          saveTasks();
-          loadTasks();
-        }
-      }
-      function saveTasks() {
-        localStorage.setItem("studyTasks", JSON.stringify(tasks));
-      }
+
       function checkTodaysTask() {
-        const today = new Date().toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-        });
-        const todaysTask = tasks.find((task) => task.date === today);
-        if (todaysTask) {
-          alert(`Today's task: ${todaysTask.task}`);
-        } else {
-          alert("No tasks scheduled for today.");
+        const today = new Date();
+        const day = today.getDate();
+        const month = today.toLocaleString("default", { month: "long" });
+        const todayString = `${day} ${month}`;
+
+        const todaysTask = tasks.find((task) => task.date === todayString);
+
+        if (todaysTask && !todaysTask.completed) {
+          setTimeout(() => {
+            alert(`Don't forget today's task: ${todaysTask.task}`);
+          }, 2000);
         }
       }
 
-      function toggleMode() {
-        document.body.classList.toggle("light-mode");
-        const isLightMode = document.body.classList.contains("light-mode");
-        localStorage.setItem("theme", isLightMode ? "light" : "dark");
-      }
+      function updateStreak() {
+        // Sort completed tasks by completion date
+        const completedTasks = tasks
+          .filter((task) => task.completed && task.completedAt)
+          .sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
 
-      function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        let currentStreak = 0;
+        let prevDate = null;
+
+        // Check for consecutive days
+        for (let i = completedTasks.length - 1; i >= 0; i--) {
+          const taskDate = new Date(completedTasks[i].completedAt);
+          taskDate.setHours(0, 0, 0, 0);
+
+          if (!prevDate) {
+            prevDate = taskDate;
+            currentStreak = 1;
+            continue;
+          }
+
+          const diffDays = (prevDate - taskDate) / (1000 * 60 * 60 * 24);
+          if (diffDays === 1) {
+            currentStreak++;
+            prevDate = taskDate;
+          } else if (diffDays > 1) {
+            break; // Streak broken
+          }
+        }
+
+        document.getElementById("current-streak").textContent = currentStreak;
       }
 
       function showMotivationalQuote() {
         const quotes = [
-          "Believe in yourself!",
-          "Stay positive, work hard, make it happen.",
-          "Success is not the key to happiness. Happiness is the key to success.",
-          "The future belongs to those who believe in the beauty of their dreams.",
+          "The expert in anything was once a beginner.",
+          "Success is the sum of small efforts, repeated day in and day out.",
           "Don't watch the clock; do what it does. Keep going.",
+          "The secret of getting ahead is getting started.",
+          "You don't have to be great to start, but you have to start to be great.",
+          "Every expert was once a beginner. Every pro was once an amateur.",
+          "Small progress is still progress. Keep going!",
         ];
+
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        alert(randomQuote);
+
+        const quoteElement = document.createElement("div");
+        quoteElement.style.position = "fixed";
+        quoteElement.style.bottom = "20px";
+        quoteElement.style.left = "50%";
+        quoteElement.style.transform = "translateX(-50%)";
+        quoteElement.style.backgroundColor = "rgba(26, 26, 46, 0.9)";
+        quoteElement.style.color = "white";
+        quoteElement.style.padding = "15px 25px";
+        quoteElement.style.borderRadius = "var(--border-radius)";
+        quoteElement.style.boxShadow = "var(--box-shadow)";
+        quoteElement.style.zIndex = "1000";
+        quoteElement.style.maxWidth = "80%";
+        quoteElement.style.textAlign = "center";
+        quoteElement.style.animation = "fadeIn 0.5s ease-out";
+        quoteElement.innerHTML = `<i class="fas fa-quote-left" style="margin-right: 10px;"></i> ${randomQuote}`;
+
+        document.body.appendChild(quoteElement);
+
+        setTimeout(() => {
+          quoteElement.style.animation = "fadeOut 0.5s ease-out";
+          setTimeout(() => quoteElement.remove(), 500);
+        }, 5000);
       }
 
-      function celebrate() {
-        const confettiCount = 100;
-        for (let i = 0; i < confettiCount; i++) {
-          const confetti = document.createElement("div");
-          confetti.classList.add("confetti");
-          confetti.style.left = Math.random() * 100 + "vw";
-          confetti.style.animationDuration = Math.random() * 2 + 3 + "s";
-          document.body.appendChild(confetti);
-
-          setTimeout(() => {
-            confetti.remove();
-          }, 5000);
+      // Close modal when clicking outside
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("addTaskModal");
+        if (event.target === modal) {
+          hideAddTaskModal();
         }
-      }
-    </script>
+      });
 
-    <script
-      src="https://kit.fontawesome.com/a076d05399.js"
-      crossorigin="anonymous"
-    ></script>
+      // Add keyboard shortcut for adding new task (Ctrl+Alt+N)
+      document.addEventListener("keydown", function (e) {
+        if (e.ctrlKey && e.altKey && e.key === "N") {
+          showAddTaskModal();
+        }
+      });
+    </script>
   </body>
 </html>
