@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yash's Study Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #0f0c29;
+        --bg-light: #f8f9fa;
+        --card-dark: #1a1a2e;
+        --card-light: #ffffff;
+        --text-dark: #e6e6e6;
+        --text-light: #2d3436;
+        --accent: #4cc9f0;
+        --accent-dark: #4361ee;
+        --accent-light: #3a86ff;
+        --success: #4caf50;
+        --warning: #ff9800;
+        --danger: #f44336;
+        --border-radius: 16px;
+        --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        --glow: 0 0 15px rgba(76, 201, 240, 0.6);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--bg-dark) 0%, #24243e 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        transition: var(--transition);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      body.light-mode {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        color: var(--text-light);
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 1rem;
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        padding-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+        animation: textGlow 3s infinite alternate;
+      }
+
+      @keyframes textGlow {
+        0% {
+          text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
+        }
+        100% {
+          text-shadow: 0 0 20px rgba(76, 201, 240, 0.6);
+        }
+      }
+
+      body.light-mode h1 {
+        background: linear-gradient(90deg, #4361ee, #3a0ca3);
+      }
+
+      h1::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--accent);
+        border-radius: 2px;
+        box-shadow: var(--glow);
+      }
+
+      .header-icon {
+        margin-right: 15px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .toggle-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        width: 100%;
+      }
+
+      .toggle-btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        color: white;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        box-shadow: var(--box-shadow);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .toggle-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+        opacity: 0;
+        transition: var(--transition);
+        z-index: -1;
+      }
+
+      .toggle-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .toggle-btn:hover::before {
+        opacity: 1;
+      }
+
+      .toggle-btn.reset {
+        background: linear-gradient(135deg, #ff9800, #ff5722);
+      }
+
+      .toggle-btn.reset::before {
+        background: linear-gradient(135deg, #ff5722, #ff9800);
+      }
+
+      .toggle-btn i {
+        transition: var(--transition);
+      }
+
+      .toggle-btn:hover i {
+        transform: scale(1.2);
+      }
+
+      .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        margin-bottom: 3rem;
+        background-color: rgba(26, 26, 46, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transform: perspective(1000px) rotateX(5deg);
+        transition: var(--transition);
+      }
+
+      body.light-mode .table-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .table-container:hover {
+        transform: perspective(1000px) rotateX(0deg);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+      }
+
+      th,
+      td {
+        padding: 1.5rem 1.25rem;
+        text-align: left;
+        transition: var(--transition);
+      }
+
+      th {
+        background: linear-gradient(
+          135deg,
+          rgba(67, 97, 238, 0.9),
+          rgba(58, 12, 163, 0.9)
+        );
+        color: white;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+      }
+
+      body.light-mode th {
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+      }
+
+      tr {
+        transition: var(--transition);
+      }
+
+      tr:not(:last-child) {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      body.light-mode tr:not(:last-child) {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      tr:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        transform: translateX(10px);
+      }
+
+      body.light-mode tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+
+      .done-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        background: linear-gradient(135deg, var(--success), #2e7d32);
+        color: white;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        box-shadow: 0 8px 15px rgba(46, 125, 50, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .done-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #2e7d32, var(--success));
+        opacity: 0;
+        transition: var(--transition);
+      }
+
+      .done-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(46, 125, 50, 0.4);
+      }
+
+      .done-btn:hover::before {
+        opacity: 1;
+      }
+
+      .done-btn i {
+        transition: var(--transition);
+      }
+
+      .done-btn:hover i {
+        transform: rotate(15deg);
+      }
+
+      .done {
+        background-color: rgba(76, 201, 240, 0.08) !important;
+        position: relative;
+      }
+
+      .done::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: var(--success);
+      }
+
+      .done td {
+        opacity: 0.8;
+      }
+
+      .done .done-btn {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        cursor: default;
+        box-shadow: none;
+      }
+
+      .done .done-btn:hover {
+        transform: none;
+        box-shadow: none;
+      }
+
+      .date-cell {
+        font-weight: 600;
+        white-space: nowrap;
+        color: var(--accent);
+      }
+
+      body.light-mode .date-cell {
+        color: var(--accent-dark);
+      }
+
+      .task-cell {
+        width: 60%;
+        font-weight: 500;
+      }
+
+      .status-cell {
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      /* Progress indicator */
+      .progress-container {
+        width: 100%;
+        max-width: 800px;
+        margin-bottom: 3rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--box-shadow);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: var(--transition);
+      }
+
+      body.light-mode .progress-container {
+        background-color: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .progress-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .progress-title {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+
+      .progress-bar {
+        height: 12px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      body.light-mode .progress-bar {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        border-radius: 6px;
+        transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        animation: progressShine 2s infinite;
+      }
+
+      @keyframes progressShine {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* Stats cards */
+      .stats-container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        width: 100%;
+      }
+
+      .stat-card {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      body.light-mode .stat-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      body.light-mode .stat-value {
+        background: linear-gradient(90deg, #4361ee, #3a0ca3);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Streak animation */
+      .streak-animation {
+        position: relative;
+      }
+
+      .streak-animation::after {
+        content: "";
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 15px;
+        height: 15px;
+        background-color: #ff5722;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ff5722, 0 0 20px #ff5722;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.8);
+          opacity: 0.8;
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 992px) {
+        .stats-container {
+          flex-direction: column;
+        }
+
+        .stat-card {
+          min-width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.2rem;
+        }
+
+        th,
+        td {
+          padding: 1rem 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .toggle-btn {
+          padding: 0.8rem 1.5rem;
+          font-size: 0.9rem;
+        }
+
+        .done-btn {
+          padding: 0.6rem 1rem;
+          font-size: 0.85rem;
+        }
+
+        .progress-container {
+          padding: 1rem;
+        }
+      }
+
+      @media (max-width: 576px) {
+        body {
+          padding: 1.5rem 0.5rem;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .toggle-container {
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .toggle-btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .progress-title {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+
+      /* Celebration effect */
+      .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background-color: var(--accent);
+        opacity: 0;
+        z-index: 1000;
+        animation: confettiFall 5s linear forwards;
+      }
+
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* Floating action button */
+      .fab {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(67, 97, 238, 0.5);
+        cursor: pointer;
+        transition: var(--transition);
+        z-index: 100;
+      }
+
+      .fab:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 15px 30px rgba(67, 97, 238, 0.6);
+      }
+
+      .fab i {
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .modal-content {
+        background: var(--card-dark);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        transform: translateY(-50px);
+        transition: transform 0.3s ease;
+        position: relative;
+      }
+
+      body.light-mode .modal-content {
+        background: var(--card-light);
+      }
+
+      .modal.show {
+        display: flex;
+        opacity: 1;
+      }
+
+      .modal.show .modal-content {
+        transform: translateY(0);
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-dark);
+        transition: var(--transition);
+      }
+
+      body.light-mode .close-modal {
+        color: var(--text-light);
+      }
+
+      .close-modal:hover {
+        color: var(--accent);
+        transform: rotate(90deg);
+      }
+
+      /* Footer */
+      footer {
+        margin-top: auto;
+        padding: 2rem 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        width: 100%;
+      }
+
+      .heart {
+        color: #ff4757;
+        animation: heartbeat 1.5s infinite;
+        display: inline-block;
+      }
+
+      @keyframes heartbeat {
+        0% {
+          transform: scale(1);
+        }
+        25% {
+          transform: scale(1.1);
+        }
+        50% {
+          transform: scale(1);
+        }
+        75% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><i class="fas fa-book-open header-icon"></i> Yash's Study Tracker</h1>
+
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-label">Total Tasks</div>
+          <div class="stat-value" id="total-tasks">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="completed-tasks">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Remaining</div>
+          <div class="stat-value" id="remaining-tasks">0</div>
+        </div>
+        <div class="stat-card streak-animation">
+          <div class="stat-label">Current Streak</div>
+          <div class="stat-value" id="current-streak">0</div>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-title">
+          <span><i class="fas fa-chart-line"></i> Study Progress</span>
+          <span id="progress-percentage">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="toggle-container">
+        <button class="toggle-btn" onclick="toggleMode()">
+          <i class="fas fa-moon"></i> Toggle Theme
+        </button>
+        <button class="toggle-btn reset" onclick="clearProgress()">
+          <i class="fas fa-sync-alt"></i> Reset Progress
+        </button>
+        <button class="toggle-btn" onclick="showAddTaskModal()">
+          <i class="fas fa-plus"></i> Add Task
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table id="studyTable">
+          <thead>
+            <tr>
+              <th class="date-cell">Date</th>
+              <th class="task-cell">Task</th>
+              <th class="status-cell">Status</th>
+              <th class="actions-cell">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <footer>
+        Made with <span class="heart"><i class="fas fa-heart"></i></span> for
+        productive studying
+      </footer>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="scrollToTop()">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal" id="addTaskModal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="hideAddTaskModal()">&times;</span>
+        <h2 style="margin-bottom: 1.5rem">Add New Task</h2>
+        <form id="taskForm">
+          <div style="margin-bottom: 1.5rem">
+            <label
+              for="taskDate"
+              style="display: block; margin-bottom: 0.5rem; font-weight: 500"
+              >Date</label
+            >
+            <input
+              type="text"
+              id="taskDate"
+              style="
+                width: 100%;
+                padding: 0.75rem;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.1);
+                color: var(--text-dark);
+              "
+              placeholder="e.g. 18 April"
+            />
+          </div>
+          <div style="margin-bottom: 1.5rem">
+            <label
+              for="taskDescription"
+              style="display: block; margin-bottom: 0.5rem; font-weight: 500"
+              >Task Description</label
+            >
+            <textarea
+              id="taskDescription"
+              rows="3"
+              style="
+                width: 100%;
+                padding: 0.75rem;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.1);
+                color: var(--text-dark);
+              "
+              placeholder="e.g. Web Designing Unit 3"
+            ></textarea>
+          </div>
+          <button
+            type="button"
+            onclick="addNewTask()"
+            style="
+              padding: 0.75rem 1.5rem;
+              background: linear-gradient(
+                135deg,
+                var(--accent),
+                var(--accent-dark)
+              );
+              color: white;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 500;
+              width: 100%;
+              transition: var(--transition);
+            "
+          >
+            Add Task
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Enhanced task data structure
+      let tasks = [
+        {
+          date: "11 April",
+          task: "Web Designing Unit 3",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "12 April",
+          task: "Web Designing Unit 4",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "13 April",
+          task: "Web Unit 1 & 2 Quick Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "14 April",
+          task: "Web Full Syllabus Revision + Test/Mock",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "15 April",
+          task: "DS-II Unit 4 (Start)",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "16 April",
+          task: "DS-II Unit 4 (Complete)",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "17 April",
+          task: "DS-II Unit 1 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "18 April",
+          task: "DS-II Unit 2 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "19 April",
+          task: "DS-II Unit 3 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "20 April",
+          task: "OOPs Unit 1 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "21 April",
+          task: "OOPs Unit 2 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "22 April",
+          task: "OOPs Unit 3 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "23 April",
+          task: "OOPs Unit 4 Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "24 April",
+          task: "OOPs Full Test/Mock",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "25 April",
+          task: "SE One-shot Video Part 1",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "26 April",
+          task: "SE One-shot Video Part 2",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "27 April",
+          task: "SE One-shot Video Part 3 + Notes",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "28 April",
+          task: "SE Models, SRS, SDLC",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "29 April",
+          task: "SE Testing, Diagrams",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "30 April",
+          task: "SE Important Questions Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "1 May",
+          task: "Web + DS Quick Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "2 May",
+          task: "OOPs + SE Quick Revision",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "3 May",
+          task: "🎯 Web Designing Exam",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "4 May",
+          task: "DS-II Final Rev. Unit 1 & 2",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "5 May",
+          task: "DS-II Final Rev. Unit 3 & 4",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "6 May",
+          task: "DS-II Short Notes + MCQs",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "7 May",
+          task: "DS-II Final Mock",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "8 May",
+          task: "🎯 DS-II Exam",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "9 May",
+          task: "OOPs Final Rev. Unit 1 & 2",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "10 May",
+          task: "OOPs Final Rev. Unit 3 & 4",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "11 May",
+          task: "OOPs Output Qs + Short Notes",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "12 May",
+          task: "OOPs Mock/Test",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "13 May",
+          task: "🎯 OOPs Exam",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "14 May",
+          task: "SE Final Rev. Models + SDLC",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "15 May",
+          task: "SE Final Rev. Testing + SRS",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "16 May",
+          task: "SE Mock + Final Notes",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+        {
+          date: "17 May",
+          task: "🎯 Software Engineering Exam",
+          completed: false,
+          createdAt: new Date("2023-04-10"),
+        },
+      ];
+
+      // Initialize the app
+      document.addEventListener("DOMContentLoaded", function () {
+        loadTasks();
+        checkTodaysTask();
+        updateStreak();
+
+        // Show motivational quote randomly
+        if (Math.random() > 0.7) {
+          setTimeout(showMotivationalQuote, 3000);
+        }
+      });
+
+      function loadTasks() {
+        const tbody = document.querySelector("#studyTable tbody");
+        tbody.innerHTML = "";
+
+        // Load from localStorage if available
+        const savedTasks = localStorage.getItem("studyTasks");
+        if (savedTasks) {
+          tasks = JSON.parse(savedTasks);
+        }
+
+        // Update stats
+        document.getElementById("total-tasks").textContent = tasks.length;
+        const completedCount = tasks.filter((t) => t.completed).length;
+        document.getElementById("completed-tasks").textContent = completedCount;
+        document.getElementById("remaining-tasks").textContent =
+          tasks.length - completedCount;
+
+        // Sort tasks by date (assuming all dates are in "DD Month" format)
+        const sortedTasks = [...tasks].sort((a, b) => {
+          const monthOrder = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
+          const [aDay, aMonth] = a.date.split(" ");
+          const [bDay, bMonth] = b.date.split(" ");
+
+          const aMonthIndex = monthOrder.indexOf(aMonth);
+          const bMonthIndex = monthOrder.indexOf(bMonth);
+
+          if (aMonthIndex !== bMonthIndex) {
+            return aMonthIndex - bMonthIndex;
+          }
+          return parseInt(aDay) - parseInt(bDay);
+        });
+
+        // Render tasks
+        sortedTasks.forEach((task, index) => {
+          const row = document.createElement("tr");
+          if (task.completed) row.classList.add("done");
+
+          row.innerHTML = `
+          <td class="date-cell">${task.date}</td>
+          <td class="task-cell">${task.task}</td>
+          <td class="status-cell">
+            <button class="done-btn" onclick="markDone(this, ${index})" ${
+            task.completed ? "disabled" : ""
+          }>
+              <i class="fas fa-${task.completed ? "check" : "tasks"}"></i>
+              ${task.completed ? "Completed" : "Mark Done"}
+            </button>
+          </td>
+          <td class="actions-cell">
+            <button class="done-btn" style="background: linear-gradient(135deg, #ff9800, #ff5722);" onclick="editTask(${index})">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="done-btn" style="background: linear-gradient(135deg, #f44336, #d32f2f); margin-left: 0.5rem;" onclick="deleteTask(${index})">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </td>
+        `;
+
+          tbody.appendChild(row);
+        });
+
+        // Update progress
+        updateProgress(completedCount);
+      }
+
+      function markDone(btn, index) {
+        const row = btn.closest("tr");
+        row.classList.add("done");
+        btn.innerHTML = '<i class="fas fa-check"></i> Completed';
+        btn.disabled = true;
+
+        // Update task status
+        tasks[index].completed = true;
+        tasks[index].completedAt = new Date();
+        saveTasks();
+
+        // Update stats
+        const completedCount = tasks.filter((t) => t.completed).length;
+        document.getElementById("completed-tasks").textContent = completedCount;
+        document.getElementById("remaining-tasks").textContent =
+          tasks.length - completedCount;
+
+        // Update progress
+        updateProgress(completedCount);
+
+        // Add celebration effect
+        celebrate();
+
+        // Update streak
+        updateStreak();
+      }
+
+      function updateProgress(completedCount) {
+        const percentage = Math.round((completedCount / tasks.length) * 100);
+        document.getElementById(
+          "progress-percentage"
+        ).textContent = `${percentage}%`;
+        document.getElementById("progress-fill").style.width = `${percentage}%`;
+      }
+
+      function updateStreak() {
+        const completedTasks = tasks.filter((t) => t.completed);
+        const streak = completedTasks.reduce((acc, task, index) => {
+          if (index === 0) return 1;
+          const prevTaskDate = new Date(completedTasks[index - 1].completedAt);
+          const currentTaskDate = new Date(task.completedAt);
+          const diffDays = Math.ceil(
+            (currentTaskDate - prevTaskDate) / (1000 * 60 * 60 * 24)
+          );
+          return diffDays === 1 ? acc + 1 : acc;
+        }, 0);
+        document.getElementById("current-streak").textContent = streak;
+      }
+
+      function showAddTaskModal() {
+        document.getElementById("addTaskModal").classList.add("show");
+      }
+      function hideAddTaskModal() {
+        document.getElementById("addTaskModal").classList.remove("show");
+      }
+      function addNewTask() {
+        const taskDate = document.getElementById("taskDate").value;
+        const taskDescription =
+          document.getElementById("taskDescription").value;
+        if (!taskDate || !taskDescription) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        const newTask = {
+          date: taskDate,
+          task: taskDescription,
+          completed: false,
+          createdAt: new Date(),
+        };
+        tasks.push(newTask);
+        saveTasks();
+        loadTasks();
+        hideAddTaskModal();
+      }
+      function editTask(index) {
+        const task = tasks[index];
+        document.getElementById("taskDate").value = task.date;
+        document.getElementById("taskDescription").value = task.task;
+        showAddTaskModal();
+        document.getElementById("taskForm").onsubmit = function () {
+          updateTask(index);
+          return false; // Prevent form submission
+        };
+      }
+      function updateTask(index) {
+        const taskDate = document.getElementById("taskDate").value;
+        const taskDescription =
+          document.getElementById("taskDescription").value;
+        if (!taskDate || !taskDescription) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        tasks[index].date = taskDate;
+        tasks[index].task = taskDescription;
+        saveTasks();
+        loadTasks();
+        hideAddTaskModal();
+      }
+      function deleteTask(index) {
+        if (confirm("Are you sure you want to delete this task?")) {
+          tasks.splice(index, 1);
+          saveTasks();
+          loadTasks();
+        }
+      }
+      function clearProgress() {
+        if (confirm("Are you sure you want to reset all progress?")) {
+          tasks = tasks.map((task) => ({ ...task, completed: false }));
+          saveTasks();
+          loadTasks();
+        }
+      }
+      function saveTasks() {
+        localStorage.setItem("studyTasks", JSON.stringify(tasks));
+      }
+      function checkTodaysTask() {
+        const today = new Date().toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+        });
+        const todaysTask = tasks.find((task) => task.date === today);
+        if (todaysTask) {
+          alert(`Today's task: ${todaysTask.task}`);
+        } else {
+          alert("No tasks scheduled for today.");
+        }
+      }
+
+      function toggleMode() {
+        document.body.classList.toggle("light-mode");
+        const isLightMode = document.body.classList.contains("light-mode");
+        localStorage.setItem("theme", isLightMode ? "light" : "dark");
+      }
+
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function showMotivationalQuote() {
+        const quotes = [
+          "Believe in yourself!",
+          "Stay positive, work hard, make it happen.",
+          "Success is not the key to happiness. Happiness is the key to success.",
+          "The future belongs to those who believe in the beauty of their dreams.",
+          "Don't watch the clock; do what it does. Keep going.",
+        ];
+        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        alert(randomQuote);
+      }
+
+      function celebrate() {
+        const confettiCount = 100;
+        for (let i = 0; i < confettiCount; i++) {
+          const confetti = document.createElement("div");
+          confetti.classList.add("confetti");
+          confetti.style.left = Math.random() * 100 + "vw";
+          confetti.style.animationDuration = Math.random() * 2 + 3 + "s";
+          document.body.appendChild(confetti);
+
+          setTimeout(() => {
+            confetti.remove();
+          }, 5000);
+        }
+      }
+    </script>
+
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
